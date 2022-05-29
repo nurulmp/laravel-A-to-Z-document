@@ -1,0 +1,815 @@
+//is_admin er kaj/////
+1.protheme auth je call kora ache oit maigration er database is_admin and phone name aro 2ta table nibo coloumn.
+2.bolien dhorbo string bad diya.nullable() dhorbo.and migrate.
+3.erpor route jaya admin.php name route call korbo.
+4.route php call korbo ortha web.php te jemon opore ja ache ta copy kore admin.php te paste korte hobe.
+5.erpor providers jaite hbe tar vitor appsprovider jaite hobe.
+6.er por routh fille ache seta copy kore admin er jonno paset korte hobe middlaware namespace thik thakbe groupe sudhu admin
+boste hobe.
+7. models jaya users model er vitor is_admin ar phone call korte hobe.
+8.erpor middleware call korte hobe IsAdmin name.
+ata controler er motoi call korte hoi controlle jaigi sudhu middleware bosatehobe.
+9.erpor handelae vitor jaya condistion dite hobe. aivabe auth jeta ache orthat user ki admin 
+jodi admin hoi tahole is_admin==1 ta checke korbe 
+admin jabe na hole home chole jab.
+
+ if(auth()->user()->is_admin==1){
+             return $next($request);
+      }
+ return redirect()->route('home')->with('error','You are not a admin');
+
+10.erpor je ami Isadmin middleware use kortechi ata abr HTTP er vitor kernal 
+route middleware jaya link kore dite hobe aivabe.
+'is_admin' => \App\Http\Middleware\IsAdmin::class,
+
+11.er por admin route jaya...route call korte hobe jta dorkae admin naki admin/home nake admin/dashboard.
+erpor amra je middleware use kortechi stao call korte hobe name er pore name er moto kore name()->middleware('is_admin==1')
+othoba group onujai group besi use kora hoi
+Route::group(['namespace'=>'App\Http\Controllers\Admin','middleware'=>'is_admin'],function(){
+
+
+
+/////////frontend////////
+
+1.prothome public frontend name akta file banai tate css/js plugin file gula rakhte hobe.
+2.views layouts vitor app.blade php index html gula paste korte hobe.
+2.erpor front-partial er vitor main nav- ar colpase nab rakhte hobe...
+3.erpor view er vitor fronten name file rakhe index.blade page app.blade je index.html rakhchi tate js and css link rakhte
+pura ta cut kore ane index.html er vitor pase korte hobe.and app .
+blade obosy include korte hobe tate footer ar header thakbe cssa andfs.
+
+
+
+////product detaials//////
+1.frontend er vitor ar akta file product name nite hobe er por prodouct dtails file ta rakhte hobe.
+
+
+////////setting globale///////
+1.apps provider er jaya use DB;
+2.tpr boot er vitor setting table call korte hobe .
+2.er por share view() korte hobe.
+
+//campaigns///
+1.migration create korte hobe.
+2.Admin/Campaign controller banabo and Model.
+
+
+///wishlist////
+1.migration create korte hobe.
+2.review controller use kora hoise.
+.3 erpor route er link dhore sathe row->slug dhorlei kaj hobe.
+
+///////add to cart////
+1.prothome add cart er form hidden akta input nite hobe tate id dhorte hobe.
+2.er por price newar jonn indput hidden kore condistion use kore price dhorbo.
+3.ajax use kore add cart korbo.
+4.modal ta k hide ar table reset korbo na kno na akadhik productcart korte pare.
+5.Fron/ Cartcontroller newa.
+6.erpor shopping cart add korte hobe.bumbummen99 shopin cart composer kore.
+and check korte hobe config er vitor Cart.php ache naki na thkele nite hobe er por and tax="0" kore dite hobe.
+7.Cart::add([])er moddhe array akare patate hobe.abong 4 ta jinis obosy thakbe id,name,qty,price,weight
+and option nite hobe jta jta lage ar ki
+7 from e route('add_to.cart.quick) add to cart er sathe aikhne quickview use kora hoise ata quick view je tai.
+8.erpor heade je cart icon ta ache oi kahne cart::total() call korte hboe. ta mot tk dekhabe jog kore.
+
+///////ajax update/reload cart//////////
+
+1.App.blade te ajax cart code korte hobe jate sob jaigai pai.
+2.ajax link cdn file use korte hobe.
+3. function cart() {
+         $.ajax({
+          type:'get',
+          url:'{{ route('all.cart') }}',
+          dataType:'json',
+          success:function(data){  
+           $('.cart_qty').empty();
+           $('.cart_total').empty();
+           $('.cart_qty').append(data.cart_qty);
+           $('.cart_total').append(data.cart_total);
+          }
+        });
+    }
+
+    $(document).ready(function(event){
+        cart();
+    });
+* aikhne append(data.cart_qty) ta use kora hoise karon hoilo cart::count er bodol..and nab bareo cart::Count use korte
+hobe na tar bodol sudhu  <div class="cart_count"><span class="cart_qty"></span></div> aive use korte hobe.
+mone rakhte hobe aikhane class dhore kaj korthe hobe span er viteor rakhe.
+ar cart() ata abr jekhe ajax diya add cart kora hoise quickview oitae call kore dite hbe ba rakhte hboe.
+empty use kora hoise ai karone je mot subtotal k  alad alada show kore jog kore nai tai use kora.
+4.jodi add cart animation system thake tahole foreach chalaite hobe.
+5.er por route call kora trpor controller kaj
+
+
+///////add to cart- product-details///
+
+1.quick view te jmon kore add cart kora hoise thik temni vabei korte hboe.
+
+///cart page jabe epr//
+1.frontend er vitor cart name akta floder banabo.
+2.erpro cart.blade.php te cart section  ta pase korte hobe.
+3.erpor route call korte hobe trpr controller jaya cart::content(); compact korte hboe.
+2.foreach chalaite hobe .
+3.color ar size to onk gula thakebe tai product tabel call korte hobe .
+4.gun korte hobe $row->qty*$row->price
+
+////cart delete////
+1.prothome id dhorte hobe trpor ajax call korte hobe 
+2.trpr route jaite hobe er controller jaya cart::remove($rowId) korte hbe.
+
+///cart update qty///
+1.prothome input tate class dhorte hobe qty.
+2.erpor ajax call
+/qty update with ajax
+	   $('body').on('blur','.qty',function(){
+	       let qty=$(this).val();
+	       let rowId=$(this).data('id');
+		      $.ajax({
+			      url:'{{ url('cart_product/updateqty/') }}/'+rowId+'/'+qty,
+			      type:'get',
+			      async:false,
+			      success:function(data){
+			         toastr.success(data);
+			         location.reload();
+			      }
+			    });
+		  });
+.erpor route call korte hboe.
+3.erpor color and size qty update er moto..
+
+///baki wishlist er kaj////
+1.fornter cart er moddhe wishlist.blade.php banate hobe.
+2.route call kora and controller jaya product er sathi join korte hobe.
+3.wishlist delete korara jonno route create kora sathe id ta dhore
+4.erpor wishlist clear korte hobe delete er motoi sudhu id jaigai user_id.
+
+///category wise product shop page.////
+1.protheome  view er vitor product er vitor category_blade.php er viteor shop.html ta paste korte hobe.
+2.main nav ar collaps nav jaya href="route('categorywise.product',$row->id)" ta call korte hobe.
+3.erpor category_product page dynamic korte hobe.
+4.erpor subcategory je call kora hoise oita route coll korte hobe.ref="route('subcategorywise.product',$row->id)"
+er por route. 
+/////paginate er kaj////
+1.apps provider vitor boot 
+  Paginator::useBootstrap();
+ata dite hboe.
+ar
+link kore dite hobe
+use Illuminate\Pagination\Paginator;
+
+category wise motabake subcategory and childcategory wise product bosbe.
+
+///brand wise product////
+1.category childcategory motoi ata amon vabe korte hboe.
+
+///custormer website review////
+1.views er viteor user floder banai nite hobe.
+2.user viter siderbar.blade.php create kora.
+3.erpor views er viteor home.blade.php te jaya .col-md-8 er opor colo-md-4 col kore @include('user.sidebar') korte hobe.
+2.erpor user er sider bare jaya auth dashboard wishlist customer logout bosabo.
+5.route call kora korte hobe.Reviewcontroller jaya data array kaj korte hobe.
+5.erpor user reviw_write.blade.php call korte hobe.
+5.erpor rivew insert korte hobe.
+6.erpor indexcontroller jaya index ervitor review call kore compact korte hbe.
+
+///setting--user--sidebar---
+1.route call kora user vitoer siderbar.
+2.profileController Create kora
+3.user jaya setting.blade.php create korte hobe.
+4.erpor sippings table create kora.
+5.oi page customer password change korte hobe formgruoup create kora.
+6.erpor route ar profileController kaj korte hobe.
+7.confirem password er kaj ta kore validate password confirmd use kora ache tai.
+
+////footer area///
+1.admin setting/page create kora.
+@php
+        $page_ond=DB::table('pages')->where('page_condistion',1)->get();
+    @endphp
+
+erpor routue call korte hobe..and  indexcontroller call kora ar views vitor frontend er vitor page.blade.php create kora.
+2.footer section er opor php call kora.
+3.erpor social link gula call korte hbe. {{$setting->youtube}}
+4.erpor 
+
+///newsLetter/////
+
+1.newsletters table create korte hbe.
+2.ajax er moddhome submit korbo.
+3.erpor newsletters route call kora footerare subscribe form route call kora.
+4.erpor controller jaya jta email nibol oita check korbe jodi thke exits dekhabe ar nak hoile else insert korbe.
+
+///cupon/////
+1.ceheckout page couporn form jaya route call korte hbe.
+2.couponcontroller create kora.
+3.erpor Session::put() er moddhe store korbo....erpor checkout page jaya session total cart gula dynamick korbo
+4.eropro romove coupon route call kore hove ar controller jaya session::forget(); korte hobe.
+
+///mailtrap///
+1.env te jaya
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.mailtrap.io
+MAIL_PORT=2525
+MAIL_USERNAME=5faab7d14c40e3
+MAIL_PASSWORD=80b326bdc58b7c
+bosate hboe..
+
+////place order////////
+1.orders ar orders_details 2 ta table banabo.
+2.order database jaya apmra je coupoun session je coupon name amound data pathaisi segulao dhorte hobe. amra ki coupon use korte
+chi ki na tar jonno.
+3.order id use kora hobe traking kora jonno
+4.product details thakbe product gula je order korbo or details thakbe.
+4.er por route('order.place'_)call korte hbe checekout page jaya.
+5.aikhane tax dhori nai...jodi dhortam tahole input::hidden dhor value="{{$setttin->tax}}"
+na dhorar karone tax="0" defautl vabe dhorsi.
+6.erpor database insetr korte hbe...insert er sthae Orderid ta back/pass dibe ai jonno 
+ $order_id=DB::table('orders')->insertGetId($order); aivabe use korte hobe.
+7.form mehtod er pase id="order_place" name akta id dhorbo.
+8.erpor order_details table dhukbe jegula amra order korlam segula.
+9.ai jonno cart::content(); sob gula dhorte hobe.
+10 ar conent theke product newar jonno  foreach chalaite hobe.
+11. erpor erpor insert korte hobe product_details;
+12.erpor cart::destroy() kore dite hobe jate product jno na thake.
+13.erpor jodu coupon thake tahole forget korte hobe.
+
+////invoice mail////
+
+1.php artisan make:mail InvoiceMail banate korte hobe.
+2.er por views  vitor mail name akta foalder banabo.
+3.invoice.blade.php banaite hobe.
+4.erpor http mail er vitor je invoice mail create korlam oitate jaya 
+
+    public $order; 
+public kore dite hobe karon order er sob kichu nibo tai.
+
+5. public function __construct($order)
+    {
+       $this->order=$order;
+    }
+
+6.erpor build er vitor ata korte hobe redirect er kaj
+return $this->subject('invoice for ecomerce')->view('mail.invoice');
+
+7. erpor amra je controller er vitor order insert korsi
+ je khane jaya mail ta send kote hobe
+
+ //mail send/to
+   Mail::to(Auth::user()->email)->send(new InvoiceMail($order));
+
+aikhane amra kake pathabo auth er email ta k naki $request er je email dhorchi take jta mon chai...send korbo kake seta hoi app er
+vitor je invoice mail dhorchi order take oita.
+
+///order show nijer profile/////
+1.home controller jaya orders table 10ta dhore viw pathabo;
+2.er por views er vitor home.blade.php te jaya dynamic korbo.
+3.erpor user vitor sidebar jaya my.order route call korbo.
+3.erpor user er vitor jaya may_order.blade.php crate kora ar home.balade.php er copy kore paste korbo.
+4.eikhane action nito edit korar jonno.
+
+////openticket////////
+1.tickets name akta table banabo;
+2.user er siderbar jay route call korbo open.ticke name.
+3.user vitor tickk.blade.php banabo.
+4.profilecontroller use korbo.
+5.ticket.blade.php tei wirite.ticket route('new.ticket) create korte hobe 4.profilecontroller jaite hobe.
+6.erpor user er vitor new_ticket.blade.php create kora.
+7.erpor store ticket action.
+8.image save kora jonno public file jaya files er vitor ticket name floader banai nibo.
+
+////reply ticket////
+1.replies name akta table banai nibo..
+2.database er ticket_id dhorte hobe orthat foreign dhorte hobe.
+3.showtickt route er kaj korte hobe ticket.blade jaya route call korbo.
+4.erpor profile jaya return view korte hobe.user vitor show_tickt.blade.php ta create korte hobe.
+5.show.blade er vitore reply message ta show korabo..muloto jta reply korbe seta.
+6.view er vitor admin tr vitor akta ticket name floader create korbo.tar vitor index.blade.php
+7.erpor admin siderbar jaya open ticke route create korte hobe.
+8.erpor admin er modder ticketcontroller name controller crate korbo.
+9.erpor admon route jaya. ticket route ta call korte hobe.
+10.filter kore nibo DataTable index file.
+11.tickets ta join korbo users table er user_id er sathe
+12.date ar status fillter korbo.
+1.erpor product er je index ta ace oita copy kore ticket index paste korbo plus edit korte hobe.
+
+
+///ticket system reply////////
+1.show.blade.php te message reply er jonno 
+2.erpor show er vitor je view_ticket korbo. id dhore tickets er sathe user join kore.
+3.erpor ticket er vitoe view_ticket.blade.name ata page crate korbo.
+3.user er viteor show.blade.php te je Message reply er cardbody ta use korchi oita copy
+ kore view_ticket Reply message paste korbo.
+4.view ticket message je nibo sekhane input:hidden niibo ticket_id ta.
+<input type="hidden" name="ticket_id" value="{{$ticket->id}}">
+5.erpor store korbo reply message.
+6.erpor web.php te jaya reply/tikcet name route call kora. show.blade.php form call kora.
+7.erpor adimi je je vabe message store korchi oitai copy kore profile controller jaya replymessage paste korbo kintu 
+aita auth sehutu Auth::id() dhorbo;
+
+9..reply show korar jonno @php @endphp er moddhe replys table ta call kora and message foreach chalabo veiw and show 2
+tai te tahole admin ar author akoi vabe hobe.
+
+10.important jisnis aibar seta hoilo reply er age (ticket table er status)status pending thakbe 
+reply dewar por ta review dekkhabe tar jonno jta korte hobe.
+ticketcontroller er joonno =DB::table('tickets')->where('id',$request->ticket_id)->update(['status'=>1]);
+ar profile controler er jonn=DB::table('tickets')->where('id',$request->ticket_id)->update(['status'=>0]);
+
+11.erpor admin er jonoo sudhu close ticket korte hobe.. er jonno form close ooper route call korte hobe.
+trpr controlr call korte ai vabe. // close ticket
+        public function CloseTicket($id)
+        {
+           DB::table('tickets')->where('id',$id)->update(['status'=>2]);
+
+            $notification=array('messege' => 'Reply close','alert_type'=>'success');
+           return redirect()->route('ticket.index')->with($notification);
+        }
+12.erpor delete er kaj korbo.
+
+///customer order details////
+1.tar age user vitor je my_order ta ache oita view kora jonno route call kora. view.order,$ro->id name.
+2.erpr web.php te jaya route call kora.profilecontroller
+3.user vitor order_details name page create kora.myorder ta copy kore paste korbo.
+
+//order tracking system with status////
+1.app.blade.php footer order trackin jaya route create kora.
+2.web.php jaya route call kora.indexcontroller e 
+3.erpr frontend er viote order_tracking.blade.php page nibo.
+4.forntent er vitor page.blade jta achi oita copy kor paste korbo
+5.erpor sekhane order sumbit er jonno from nibo  route create korbo check.order name.
+6.web.php te jaya route call korbo and indexcontroller jabo.
+7.indexcontroller jaya check korbe thakle noton page jabe order_details banabo frontend er vitor.
+8.erpor order id ta nibo orders table theke tarpor id diya order_traking page jaya order_id bosai submit korbo.
+
+///payment type getway ammarpay///
+1.payment_getway name table banabo.
+2.google ammmarpay nam search dibo.
+3.documnet jaya larave click kore oder github file tai jabo r controller ta on korbo web.php ta on korbo
+4.http er vitor veryfai.php theke store_id ar singnature ta nibo migration e;
+5.status dhorbo default 0 dibo . 0 thakbe sendbox ar jkhn 1 hobe live serve.
+6.table jaya name ar status insert kore rakhbo amnitei ssl aamrpay ar surjo nam diay.
+7.erpr views ar admin er vitor jaya bd_payment_gateway name flder create korbo.
+8.erpr layouts er vitor siderbar jaya setting jay route call korbo payment.gateway name.
+9.erpor admin.php te jaya settingcontroller ta use korbo.
+10.setting er je smtp ta oita copy kore edit te paste kore dibo.
+11.erpor compact kora gula value te dibo.
+12.erpr form update.aamrpray route call korbo.
+12.order_id sathe status dhorbo from-group checkbox er maddhome.
+jodi 1 hoi status  ta tahole live serve ar 0 hoile sandbox.
+13.akoi vabe ssl and surjo tao update korte paarbo.
+
+signature key== 28c78bb1f45112f5d40b956fe104645a
+ata nisi github theke
+
+14.checkoutcontroller jaya if dhore korbo if($request->payment_type=="Hand Cash"){
+}else{
+
+                if($aamarpay->status==1){
+                     $url = 'https://secure.aamarpay.com/request.php'; // live url https://secure.aamarpay.com/request.php
+                }else{
+                    $url = 'https://sandbox.aamarpay.com/request.php';
+                }
+
+               
+                $fields = array(
+                'store_id' =>$aamarpay->store_id, //store id will be aamarpay,  contact integration@aamarpay.com for test/live id
+                 'amount' => '200', //transaction amount
+                'payment_type' => 'VISA', //no need to change
+                'currency' => 'BDT',  //currenct will be USD/BDT
+                'tran_id' => rand(1111111,9999999), //transaction id must be unique from your end
+                'cus_name' => 'customer name',  //customer name
+                'cus_email' => 'customeremail@mail.com', //customer email address
+                'cus_add1' => 'Dhaka',  //customer address
+                'cus_add2' => 'Mohakhali DOHS', //customer address
+                'cus_city' => 'Dhaka',  //customer city
+                'cus_state' => 'Dhaka',  //state
+                'cus_postcode' => '1206', //postcode or zipcode
+                'cus_country' => 'Bangladesh',  //country
+                'cus_phone' => '1231231231231', //customer phone number
+                'cus_fax' => 'Not¬Applicable',  //fax
+                'ship_name' => 'ship name', //ship name
+                'ship_add1' => 'House B-121, Road 21',  //ship address
+                'ship_add2' => 'Mohakhali',
+                'ship_city' => 'Dhaka', 
+                'ship_state' => 'Dhaka',
+                'ship_postcode' => '1212', 
+                'ship_country' => 'Bangladesh',
+                'desc' => 'payment description', 
+                'success_url' => route('success'), //your success route
+                'fail_url' => route('fail'), //your fail route
+                'cancel_url' => 'http://localhost/foldername/cancel.php', //your cancel url
+                'opt_a' => 'Reshad',  //optional paramter
+                'opt_b' => 'Akil',
+                'opt_c' => 'Liza', 
+                'opt_d' => 'Sohel',
+                'signature_key' =>$aamarpay->signature_key); //signature key will provided aamarpay, contact integration@aamarpay.com for test/live signature key
+
+                $fields_string = http_build_query($fields);
+         
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_VERBOSE, true);
+            curl_setopt($ch, CURLOPT_URL, $url);  
+      
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            $url_forward = str_replace('"', '', stripslashes(curl_exec($ch)));  
+            curl_close($ch); 
+
+            $this->redirect_to_merchant($url_forward);
+}
+
+14.middelare jaya.
+  protected $addHttpCookie = true;  
+ protected $except = [
+         'success',
+        'fail'
+    ];
+
+15.erpor web.php te route bosaite hobe.
+Route::post('/success','paymentController@success')->name('success');
+
+Route::post('/fail','paymentController@fail')->name('fail');
+
+16.checkout controllr jaya aita bosabo
+
+ function redirect_to_merchant($url) {
+
+        ?>
+        <html xmlns="http://www.w3.org/1999/xhtml">
+          <head><script type="text/javascript">
+            function closethisasap() { document.forms["redirectpost"].submit(); } 
+          </script></head>
+          <body onLoad="closethisasap();">
+          
+            <form name="redirectpost" method="post" action="<?php echo 'https://sandbox.aamarpay.com/'.$url; ?>"></form>
+            <!-- for live url https://secure.aamarpay.com -->
+          </body>
+        </html>
+        <?php	
+        exit;
+    } 
+
+   public function success(Request $request){
+        return $request;
+    }
+
+    public function fail(Request $request){
+        return $request;
+    }
+
+
+17.elseif() jaya ammarpay table ta call korbo first diya jodi store_id na thake tahole if() dite bolbo ar thakle access hobe
+else() er maje.abr else er maje abr condistion chaliate hobe jodi status==1 hoi live jabe nahole sandbox
+
+18.erpor  $fields = array(
+te bosabo
+'signature_key' =>$aamarpay->signature_key);
+'store_id' => $aamarpay->store_id,
+
+
+18.erpor config jaya session.php te jaite hobe.
+'secure' =>false, 
+ 
+'same_site' => Null,
+same site ta null kore dite hobe.
+
+19.erpoor order recvied korar kaj ta korte hobe.
+20 erpor orderplace er sobgula copy kor success paste kore dibo.
+21.tobe aikhane c_name ,c_addres je ache aivabe kaj korbe na. add filed je vabe ache. cus_name oigula bosbe.
+22.orderplace() ta te staus=0 thakbe ar success pathabo tkhn staus==1 hobe.
+23.erpor order cancel er kaj korbo. $fields = array() er vitor jaya
+'cancel_url' =>route('cancel'), cancel korbo;
+24.web.php te jaya Route::get('/cancel',function(){
+        return redirect()->to('/');
+    })->name('cancel'); 
+raoute call kora.
+
+///campign show front page/////
+1.logo ta bosai nibo <img src="{{asset($setting->logo)}}" alt="logo">
+phone eamil gula call kore dibo.
+2.indexcontroller jaya campaing call korte hobe.
+3.dashboard jaya status 1 thakle active hbe ar unactive korle index.php te show korbe na.
+
+
+////order show in admin panel/////
+1.Admin/orderController banai nibo.
+2.sidebar jaya orders route create korbo.admin.order.index
+3.Adimn er vitore order flder banabo. trpr index.blade.php
+4.productcontroller index ta filltering kora ache oita copy kore paste kore dibo.
+5.join er drkr nai.
+6.fillter korbo payment_type,date,r status diya.
+7.producter index.blade.php ta copy kore order er vitor index.blade.php te paste korbo,
+8.edit view korbo modal diya ai jonno ordercontroller jaya action data-id="'.$row->id.'" use korbo.
+9.erpor route create kora controller jaya return view kora. edit er jonno pickuppoin ta copy kore paste korbo.
+10.erpor edit tak upader korbo ajax diya.
+11.amra je update korlam ta client k bujar jonno akta mail pathabo. mailtrap er moddhome.
+if($request->status==1){
+    Mail::to($request->c_email)->send(new ReceviedMail($data));
+ }
+mail je pathabo tar jonno gitbash jaya..php artisan make:mail RecivedMail name oitate send korbo.
+RecivedMail jay 
+ public $order;
+    /**
+     * Create a new message instance.
+     *
+     * @return void
+     */
+    public function __construct($order)
+    {
+        $this->order=$order;
+    }
+ public function build()
+    {
+       return $this->subject('recived for ecomerce')->view('mail.recivedmail');
+    }
+bosabo.
+13.erpor view er vitor mail er vitor recivedmail.blade.php crate korbo.trpr invoice jata ache copy r paste korbo.
+ami aikahne recived bana sob khane vul kore likchi pore banan thik kore korbi.
+
+////order view////
+1.ordercontroller jaya action data-id crate kora.
+2.admin.php te jaya route call kora.
+3.erpor ordercontroller jaya view r compact korbo.
+4.amdin er order er vitor order_detaisl page creae korbo.
+5.order_detaisl update korte parbo tai phon email id gula hidden dhorlam
+6.order aibar delete korbo tar jonno route call kora.controller jaya.
+7.delte korbo.
+
+
+////login with social/google///
+1.app blade.php te jaya anconr ar rouet call korbo {{route('social.oauth','facebook')}} facebook hoile facebook 
+twiter hoile orthat jta lagbe tag nibo login with google.
+2.composer require laravel/socialite
+3.eepor config theke proividers jaya
+ Laravel\Socialite\SocialiteServiceProvider::class,
+4.alise jaya bosate hobe.
+'Socialite' => Laravel\Socialite\Facades\Socialite::class,
+
+5.erpor maigration users table jaya
+$table->string('avatar')->nullable();
+ $table->string('provider',20)->nullable();
+ $table->string('provider_id')->nullable();
+
+6.erpor model use korbo..
+	'avatar',
+        'provider',
+        'provider_id',
+        'access_token',
+
+7.env te jaya client id dite hobe.
+CLIENT_ID=1045173220735-2u37od7gfd8s22fs93q6tllnvjb3ri2u.apps.googleusercontent.com
+CLIENT_SECRET=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
+
+9.erpor web.php te jaya front er vitor dibo baire paste kobo karon ata auth ache front nai tai.
+//socialit--------------------
+Route::get('oathu/{driver}', [App\Http\Controllers\Auth\LoginController::class, 'redirectToProvider'])->name('social.oauth');
+
+Route::get('oathu/{driver}/callback', [App\Http\Controllers\Auth\LoginController::class, 'redirectToProvider'])->name('social.callback');
+
+10. erpor confic er vitor sevice jaya
+'google' => [
+       'client_id'     => env('CLIENT_ID'),
+       'client_secret' => env('CLIENT_SECRET'),
+       'redirect'      => env('APP_URL') . '/oauth/google/callback',
+    ],
+
+env te je name disilam oitai use korbo opopr  => env('CLIENT_ID'), aive service.php te jaya.
+
+11.erpor login controller jaya.....
+
+use Laravel\Socialite\Facades\Socialite;
+use App\Models\User;
+use Exception;
+use Auth;
+
+ protected $providers = [
+        'github','facebook','google','twitter'
+    ];
+
+ //socialite login all function
+     public function redirectToProvider($driver)
+    {
+        if( ! $this->isProviderAllowed($driver) ) {
+            return $this->sendFailedResponse("{$driver} is not currently supported");
+        }
+
+        try {
+            return Socialite::driver($driver)->redirect();
+        } catch (Exception $e) {
+            // You should show something simple fail message
+            return $this->sendFailedResponse($e->getMessage());
+        }
+    }
+
+  
+    public function handleProviderCallback( $driver )
+    {
+        try {
+            $user = Socialite::driver($driver)->user();
+        } catch (Exception $e) {
+            return $this->sendFailedResponse($e->getMessage());
+        }
+
+        // check for email in returned user
+        return empty( $user->email )
+            ? $this->sendFailedResponse("No email id returned from {$driver} provider.")
+            : $this->loginOrCreateAccount($user, $driver);
+    }
+
+    protected function sendSuccessResponse()
+    {
+        return redirect()->intended('home');
+    }
+
+    protected function sendFailedResponse($msg = null)
+    {
+        return redirect()->route('login')
+            ->withErrors(['msg' => $msg ?: 'Unable to login, try with another provider to login.']);
+    }
+
+    protected function loginOrCreateAccount($providerUser, $driver)
+    {
+        // check for already has account
+        $user = User::where('email', $providerUser->getEmail())->first();
+
+        // if user already found
+        if( $user ) {
+            // update the avatar and provider that might have changed
+            $user->update([
+                'avatar' => $providerUser->avatar,
+                'provider' => $driver,
+                'provider_id' => $providerUser->id,
+                'access_token' => $providerUser->token
+            ]);
+        } else {
+            // create a new user
+            $user = User::create([
+                'name' => $providerUser->getName(),
+                'email' => $providerUser->getEmail(),
+                'avatar' => $providerUser->getAvatar(),
+                'provider' => $driver,
+                'provider_id' => $providerUser->getId(),
+                'access_token' => $providerUser->token,
+                // user can use reset password to create a password
+                'password' => ''
+            ]);
+        }
+
+        // login the user
+        Auth::login($user, true);
+
+        return $this->sendSuccessResponse();
+    }
+
+    private function isProviderAllowed($driver)
+    {
+        return in_array($driver, $this->providers) && config()->has("services.{$driver}");
+    }
+
+
+prothomoto google cloud jaya age client id khulte hobe.
+
+
+////blog category///
+1.blog category name migration banai nibo.
+3.admin_partial sidebar jaya blog route create kora.
+4.admin er vitor blogcontroller banai nibo.
+5.views er vitor blog fldr trpor cateegory.blade.php page nibo.
+6.erpor store korbo route call korbo from e
+
+/////blog-page///
+1.er por blogs name migration korbo.(blog_category_id ta foriegn dhorbo).
+2.sidebar jaya blog.single.indexe name route creae kora.
+3.admin jaya blogsinleController name controler create korbo.
+4.erpor product jevbe uplode korchi oivabe korbo
+5.erpor indexcontrolle jaya blogs call kore compact kore trpr index.blade.php foreach chalabo.
+
+///blog-detaisl///
+1.route crate korte hobe korte hobe. slug dhore,
+2.indexcontroller jaya
+
+///contact us///
+1.main_nav jaya contact jaya route contact create kora.
+2.web.php te jaya index controller use korbo.
+3.forntend er vitore jaya contact.blade.php page nibo.
+4.erpor contacts table banabo.
+5.status use korbo jate rely disi kina grahok k der k tar jonno.
+5.erpor action contact.store diya route creat kora.
+6.index controller jaya data arry maddhme table store korbo.
+
+
+//report print///
+1.admin er vitor report name akta flder banai nibo.
+2.erpor index.blade.php page create kora.
+3.erpor print.blade.php name ar akta page create kora.
+4.order er vitor je index.blade ta ache oita copy kore report er vitor je index.blade ache paste korbo.
+5.erpor sidebar jaya route create korbo report.orrder.index name.
+6.erpor admin.php te jaya route call kora.
+6.ordercontroller jaya index method ja ache oitai copy kore re route call korlam oita te paste korbo.
+orthat ReportIndex
+7.action tule dibo controller and index theke.
+9.view edit tao tule dibo.
+10.index.blade.php te akta button nibo print korar jonno ar sekhane class dhorbo print name diya.
+11.. print korar jonno printthis name akta plugin lagbe.
+12.oita public er vitor backend tr vitor plugins er vitor floder ta paste korbo.
+12.index link kore dite hobe.
+13.erpor 
+//data passed through here
+        $('.print').on('click',function(e){
+          e.preventDefault();
+          $('.loader').removeClass('d-none');
+          $.ajax({
+            url:"{{ route('report.order.print') }}",
+            type:'get',
+            data:{status: $('#status').val(), date: $('#date').val(), payment_type: $('#payment_type').val()},
+            success:function(data){
+               $('.loader').addClass('d-none');
+               $(data).printThis({
+               	debug:false,
+               	importCss:true,
+               	importStyle:true,
+               	removeInline:false,
+               	printDelay:500,
+               	header:null,
+               	footer:null,
+               });
+            }
+          });
+        });
+
+data te jta jta pathabo oita oita dilei hobe. jmn disi date status date paymnt taype.
+report.order.print je route call korchi aita admin.php te route ta call krte hboe.
+14.abr ReportIndex jta ache oitai copy kore reportorder paste korbo ar chatai korbo.
+15.erpor print.blade.php te akta table nibo trpr foreach chalbo.
+
+<script src="{{ asset('public') }}/backend/plugins/print_this/printThis.js"></script>
+ai link ta views er vitor admin.blade.php te jaya link ta bosaite hobe.
+
+///user home access dibe kntu admin dibe na home tak k//
+1/admin theke sora sori jno home na jawa jai tar jonno homeController jaya index method ta je ache
+ if(!Auth::user()->is_admin==1){}
+ermoddhe sob diya dibo.
+
+///Dashboard Daynamic ////
+1.view->admin->home.blade.php te jabo.
+
+///share product on social
+composer require jorenvanhocht/laravel-share
+
+2.// config/app.php
+'providers' => [
+    Jorenvh\Share\Providers\ShareServiceProvider::class,
+];
+
+// config/app.php
+'aliases' => [
+    'Share' => Jorenvh\Share\ShareFacade::class,
+];
+
+3.php artisan vendor:publish --provider="Jorenvh\Share\Providers\ShareServiceProvider"
+
+4.product_details.blade.php te jaya link dite hobe
+ <!-- Share JS -->
+<script src="{{ asset('public/js/share.js') }}"></script>
+
+5 er por oi page @php @endphp er vitor
+// Share button 1
+               $shareButtons1 = \Share::page(
+                     url()->current();
+               )
+               ->facebook()
+               ->twitter()
+               ->linkedin()
+               ->telegram()
+               ->whatsapp() 
+               ->reddit();
+
+6. {!! $shareButtons1 !!} ata jekhane dibo sekhanei pabe.
+
+///baki campaign er kaj////
+sadharonot akta camping er awtai koto gula product thakebe setar jonno kaj kora.
+1.campaingcontroller jaya route call kora. campign.route.add name 
+2.campaign controller product name akta controller banabo admin er vitor.
+3.join korbo productcontroller jevabe ache oivabe.sahte products table er status jar 1 ache.
+4.Offer modder campaign_product name floader banai nibo.tarmodder index.blade.php banai category index ta copy paste kobo
+5.campaign_products name akta table banai nibo.
+6.campaign product add korar jonno campignproductcontroller jaya add.product.to.campaign route crate kobo. sathe id ar 
+campaign_id ta pass korte hobe.
+7.erpor product list korob delete kor index.blade er opore add new er jaigai product list route create korbo.
+campaign.product.list name route.
+8.campaign_product_list.blade.php banai nibo.
+9.indext tai copy kore paste kore dibo.
+10.erpor delet korar jonno route create korbo. product.remove.camapaign
+
+///campaign er date er opor show////
+1.forntend er vitor index.blade.php te jya php er vitor date ddhorbo 
+2.erpor route create korbo frontend.campaign.product',$campaign->id
+3.erpor web.php te jaya route call korbo.
+4.frontend er vitro campaign name akta fldr banabo trpr product_list.blade.php file
+5.brandwise_product ta copy kore paste kore dibo.
+
+///price show campaign//
+1.frontend er vitor campaign er vitor product_details.blade.php name file nibo. 
+2.product_list.blade.php te jaya campaign.product.details',$row->slug create korbo.
+3.product er viotor je product.details je ache oita copy kore paste kore dibo.
